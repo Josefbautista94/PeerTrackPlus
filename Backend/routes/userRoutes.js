@@ -3,10 +3,9 @@ import express from 'express';
 import User from '../models/userSchema.js';
 const router = express.Router();
 
-/////////////////////////// USER CRUD //////////////////////////////////////
 
 // CREATE
-router.post('/', async (req, res) => { // 
+router.post('/users', async (req, res) => { // 
     try{
         const { name, email } = req.body; // 
         const newUser = new User({ name, email });
@@ -19,9 +18,9 @@ router.post('/', async (req, res) => { //
 });
 
 // READ ALL
-router.get('/', async(req, res) => {
+router.get('/users', async(req, res) => {
     try {
-        const allUsers = await User.find({}) // read from DB.
+        const allUsers = await User.find({}) 
         res.json(allUsers);
     }
     catch (err) {
@@ -29,7 +28,7 @@ router.get('/', async(req, res) => {
     }
 });
 // READ BY ID 1 USER
-router.get('/:id', async(req, res) => {
+router.get('/users/:id', async(req, res) => {
     try {
         const singleUser = await User.findById(req.params.id);
         if (!singleUser) {
@@ -43,7 +42,7 @@ router.get('/:id', async(req, res) => {
 });
 
 // UPDATE
-router.put('/:id', async (req, res) => {
+router.put('/users/:id', async (req, res) => {
     try {
        const updateUser = await User.findByIdAndUpdate(req.params.id, req.body, { new: true });
        if (!updateUser) {
@@ -57,7 +56,7 @@ router.put('/:id', async (req, res) => {
 });
 
 // DELETE
-router.delete('/:id', async(req, res)=> {
+router.delete('/users/:id', async(req, res)=> {
     try {
         const deleteUser = await User.findByIdAndDelete(req.params.id);
         if (!deleteUser) {

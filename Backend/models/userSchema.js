@@ -7,7 +7,9 @@ const userSchema = mongoose.Schema({
     role: { type: String, enum: ["learner", "alumni", "admin"], default: "learner"}
     
     /// add friend list
-});
+},
+{ timestamps: true }
+);
 
 const User = mongoose.model('User', userSchema);
 
