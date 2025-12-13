@@ -6,6 +6,6 @@ const requestSchema = mongoose.Schema({
     date: { type: Date, default: Date.now }
 });
 
-const Request = mongoose.model('Request', requestSchema);
+const PostRequest = mongoose.model('Request', requestSchema);
 
-export default Request;
+export default PostRequest;
