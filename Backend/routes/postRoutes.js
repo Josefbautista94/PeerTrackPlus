@@ -7,8 +7,8 @@ const router = express.Router();
 // create request
 router.post('/', async(req, res) => { // 
     try{
-        const { title, content } = req.body; // 
-        const newPostRequest = new PostRequest({ title, content });
+        const { title, level, urgency, content } = req.body; // 
+        const newPostRequest = new PostRequest({ title, level, urgency, content });
         await newPostRequest.save();
         res.status(201).json(newPostRequest);
     }

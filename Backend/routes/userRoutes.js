@@ -4,8 +4,8 @@ import User from '../models/userSchema.js';
 const router = express.Router();
 
 /////////////////////////// USER CRUD //////////////////////////////////////
-// router
-/// create
+
+// CREATE
 router.post('/', async (req, res) => { // 
     try{
         const { name, email } = req.body; // 
@@ -18,7 +18,7 @@ router.post('/', async (req, res) => { //
     }
 });
 
-// read
+// READ ALL
 router.get('/', async(req, res) => {
     try {
         const allUsers = await User.find({}) // read from DB.
@@ -27,82 +27,45 @@ router.get('/', async(req, res) => {
     catch (err) {
         res.status(500).json({message: err.message});
     }
-})
-
+});
+// READ BY ID 1 USER
 router.get('/:id', async(req, res) => {
     try {
-        const singleUser = await User.findById(req.params.id) // read from DB.
+        const singleUser = await User.findById(req.params.id);
+        if (!singleUser) {
+            return res.status(404).json({ message: 'User not found' });
+        }
         res.json(singleUser);
     }
     catch (err) {
         res.status(500).json({message: err.message});
     }
-})
-// update
-router.put('/id', async (req, res) => {
+});
+
+// UPDATE
+router.put('/:id', async (req, res) => {
     try {
-       const updateUser = await Users.findByIdAndUpdate(req.params.id, req.body, { new: true });
+       const updateUser = await User.findByIdAndUpdate(req.params.id, req.body, { new: true });
+       if (!updateUser) {
+           return res.status(404).json({ message: 'User not found' });
+       }
+       res.json(updateUser);
     }
     catch (err) {
         res.status(500).json({message: err.message});
     }
-})
-// delete -  make sure only admins can actually 
+});
+
+// DELETE
 router.delete('/:id', async(req, res)=> {
     try {
         const deleteUser = await User.findByIdAndDelete(req.params.id);
-        res.json(deleteUser);
+        if (!deleteUser) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        res.json({ message: 'User deleted successfully', user: deleteUser });
     }
     catch(err) {
-        res.status(500).json({
-            message: err.message
-        })
-    }
-});
-
-////////////////////////// REQUEST CRUD ///////////////////////////////////////
-// create request
-router.post('/', async(req, res) => { // 
-    try{
-        const { title, content } = req.body; // 
-        const newPostRequest = new PostRequest({ title, content });
-        await newPostRequest.save();
-        res.status(201).json(newPostRequest);
-    }
-    catch (err) {
-        res.status(500).json({message: err.message})
-    }
-});
-// read request and able to post
-router.get('/', async(req, res)=> {
-    try {
-        const allReqPost = await PostRequest.find({});
-        res.json(allReqPost)
-    }
-    catch (err) {
-        res.status(500).json({message: err.message})
-    }
-});
-// update? does an admin really need this?
-router.get('/:id', async(req, res) => {
-    try {
-        const ReqPost = await PostRequest.findById(req.params.id);
-        res.json(ReqPost)
-    }
-    catch (err) {
-        res.status(500).json({message: err.message})
-    }
-});
-// delete admin must be ableto delete any REQUEST
-
-router.delete('/:id', async(req, res)=> {
-    try {
-        const deleteReqPost = await PostRequest.findByIdAndDelete(req.params.id);
-        res.json(deleteReqPost);
-    }
-    catch(err) {
-        res.status(500).json({
-            message: err.message
-        })
+        res.status(500).json({message: err.message});
     }
 });
