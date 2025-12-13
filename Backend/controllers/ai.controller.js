@@ -1,24 +1,18 @@
 // AI controllers will live here
 
-export const matchTutors = (req, res) => {
+const { generateAdminInsights } = require("../services/aiInsights.service");
+
+const matchTutors = (req, res) => {
   res.json({
     matches: [
-      {
-        tutorId: "t1",
-        score: 92,
-        reason: "Strong topic match and recent tutoring activity"
-      },
-      {
-        tutorId: "t2",
-        score: 85,
-        reason: "Relevant experience and availability"
-      }
+      { tutorId: "t1", score: 92, reason: "Strong topic match and recent tutoring activity" },
+      { tutorId: "t2", score: 85, reason: "Relevant experience and availability" }
     ]
   });
 };
 
-export const aiChat = (req, res) => {
-  const { topic, message } = req.body;
+const aiChat = (req, res) => {
+  const { topic } = req.body;
 
   res.json({
     reply: `Here’s a quick explanation related to ${topic}.`,
@@ -26,12 +20,13 @@ export const aiChat = (req, res) => {
   });
 };
 
-export const adminInsights = (req, res) => {
-  res.json({
-    insights: [
-      "React and JavaScript are the most requested topics",
-      "Most requests are beginner level",
-      "Session completion rate is trending up"
-    ]
-  });
+const adminInsights = (req, res) => {
+  const insights = generateAdminInsights();
+  res.json({ insights });
+};
+
+module.exports = {
+  matchTutors,
+  aiChat,
+  adminInsights
 };

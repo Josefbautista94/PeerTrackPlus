@@ -1,17 +1,16 @@
 // AI routes will live here
 
-import express from "express"
+const express = require("express");
+const {
+  matchTutors,
+  aiChat,
+  adminInsights
+} = require("../controllers/ai.controller");
 
-import{
-matchTutors,
-aiChat,
-adminInsights
-} from "../controllers/ai.controller.js"
-
-const router = express.Router.js
+const router = express.Router();
 
 router.post("/match", matchTutors);
 router.post("/chat", aiChat);
 router.get("/admin-insights", adminInsights);
 
-export default router;
+module.exports = router;
