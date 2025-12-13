@@ -1,11 +1,10 @@
 // dependencies
 import express from 'express';
 import User from '../models/userSchema.js';
-import PostRequest from '../models/userSchema.js';
+const router = express.Router();
 
 /////////////////////////// USER CRUD //////////////////////////////////////
 // router
-const router = express.Router();
 /// create
 router.post('/', async (req, res) => { // 
     try{
@@ -95,3 +94,15 @@ router.get('/:id', async(req, res) => {
     }
 });
 // delete admin must be ableto delete any REQUEST
+
+router.delete('/:id', async(req, res)=> {
+    try {
+        const deleteReqPost = await PostRequest.findByIdAndDelete(req.params.id);
+        res.json(deleteReqPost);
+    }
+    catch(err) {
+        res.status(500).json({
+            message: err.message
+        })
+    }
+});
