@@ -10,76 +10,107 @@ import {
     linkStyle,
 } from "../styles/authStyles";
 
-/**
- * Static admin identifier used for demo access control.
- * In production, this logic would be replaced by backend-based role validation.
- */
-const ADMIN_EMAIL = "admin@peerscholas.org";
+// ⚠️ IMPORTANT: Replace this with your actual backend API URL
+const API_BASE_URL = "http://localhost:5000/api/auth"; // Using the /api/auth prefix
+
+// Note: We will keep ADMIN_EMAIL for the redirect logic, but actual authentication
+// will now be handled by the backend's email/password validation.
+const ADMIN_EMAIL = "admin@peerscholas.org"; 
 
 export default function Login() {
     const { login } = useAuth();
     const navigate = useNavigate();
 
-    /**
-     * Login form state.
-     * Role selection is available for demo users only.
-     */
+    // Login form state
     const [email, setEmail] = useState("");
-    const [password, setPassword] = useState(""); // placeholder for future authentication
-    const [role, setRole] = useState("learner");
+    const [password, setPassword] = useState("");
+    const [role, setRole] = useState("learner"); // Used only for demo/simulated redirects
+    const [error, setError] = useState(""); // State for displaying API errors
+    const [loading, setLoading] = useState(false); // State for button loading
 
-    /**
-     * Normalize email for consistent role checks and comparisons.
-     */
     const normalizedEmail = email.trim().toLowerCase();
     const isAdminEmail = normalizedEmail === ADMIN_EMAIL;
 
-    /**
-     * Automatically lock role selection when an admin email is detected.
-     * Admin privileges override any manually selected role.
-     */
     useEffect(() => {
         if (isAdminEmail) {
-            setRole("learner"); // role value is ignored when admin is detected
+            setRole("admin"); // Setting role to 'admin' for correct local redirect logic
+        } else {
+            setRole("learner"); // Reset role if admin email is removed
         }
     }, [isAdminEmail]);
 
     /**
      * Handles login submission.
-     * Determines the final role, authenticates the user,
-     * and redirects them to the appropriate dashboard.
+     * Replaced simulated login with actual API call.
      */
-    function handleSubmit(e) {
+    async function handleSubmit(e) {
         e.preventDefault();
-
-        const userRole = isAdminEmail ? "admin" : role;
-
-        // Simulated authentication (replaced by backend login in production)
-        login({
-            name: isAdminEmail ? "Admin User" : "Demo User",
+        setError("");
+        setLoading(true);
+        
+        // Data to send to the backend
+        const loginData = {
             email: normalizedEmail,
-            role: userRole,
-        });
+            password,
+        };
 
-        // Redirect user based on resolved role
-        if (userRole === "admin") navigate("/admin");
-        else if (userRole === "tutor") navigate("/tutor");
-        else navigate("/learner");
+        try {
+            // 1. Send Login Request to Backend
+            const response = await fetch(`${API_BASE_URL}/login`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(loginData),
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                // 2. Successful Login: Save session using AuthContext
+                
+                // The backend responds with the full user object (including role) and a token.
+                login(data.user, data.token); 
+
+                // 3. Redirect user based on the role received from the backend
+                const userRole = data.user.role; // Use the role from the backend response
+
+                if (userRole === "admin") navigate("/admin");
+                else if (userRole === "tutor") navigate("/tutor");
+                else navigate("/learner");
+
+            } else {
+                // 4. Handle API Errors (e.g., "Invalid credentials")
+                setError(data.message || "Login failed. Please check your credentials.");
+            }
+        } catch (err) {
+            // 5. Handle Network/Server Errors
+            console.error("Login Network Error:", err);
+            setError("Could not connect to the server. Please check your network.");
+        } finally {
+            setLoading(false);
+        }
     }
 
     return (
         <div style={{ background: "#F5F7FA", minHeight: "100vh" }}>
-            {/* Shared application header (logout hidden on auth screens) */}
             <Header showLogout={false} />
 
             <div style={authContainer}>
                 <h2 style={authTitle}>Login</h2>
 
-                {/* Login form */}
+                {/* Display Error Message */}
+                {error && (
+                    <div style={{ color: "red", textAlign: "center", marginBottom: 10 }}>
+                        {error}
+                    </div>
+                )}
+
                 <form onSubmit={handleSubmit} style={{ display: "grid", gap: 14 }}>
                     <input
                         style={inputStyle}
                         placeholder="Email"
+                        type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         required
@@ -93,23 +124,7 @@ export default function Login() {
                         onChange={(e) => setPassword(e.target.value)}
                         required
                     />
-
-                    {/* Role selection is disabled when admin access is detected */}
-                    <select
-                        style={{
-                            ...inputStyle,
-                            opacity: isAdminEmail ? 0.6 : 1,
-                            cursor: isAdminEmail ? "not-allowed" : "pointer",
-                        }}
-                        value={role}
-                        onChange={(e) => setRole(e.target.value)}
-                        disabled={isAdminEmail}
-                    >
-                        <option value="learner">Learner</option>
-                        <option value="tutor">Tutor</option>
-                    </select>
-
-                    {/* Informational message for admin access */}
+                  
                     {isAdminEmail && (
                         <small
                             style={{
@@ -122,8 +137,8 @@ export default function Login() {
                         </small>
                     )}
 
-                    <button style={buttonPrimary} type="submit">
-                        Login
+                    <button style={buttonPrimary} type="submit" disabled={loading}>
+                        {loading ? "Logging In..." : "Login"}
                     </button>
                 </form>
 

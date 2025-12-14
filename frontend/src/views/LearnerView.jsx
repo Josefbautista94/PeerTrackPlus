@@ -1,17 +1,17 @@
 import React, { useState } from "react";
+import { useAuth } from "../context/AuthContext";
 import { sendAiMessage } from "../api/aiApi";
 import {
-  pageWrap,
-  container,
-  card,
-  cardTitle,
-  label,
-  input,
-  buttonPrimary,
-  buttonGhost,
-  colors,
+    pageWrap,
+    container,
+    card,
+    cardTitle,
+    label,
+    input,
+    buttonPrimary,
+    buttonGhost,
+    colors,
 } from "../styles/uiTheme";
-
 /**
  * LearnerView
  * Provides the learner-facing dashboard for submitting help requests,
@@ -22,10 +22,11 @@ export default function LearnerView({ onSubmitRequest }) {
    * Request form state.
    * These values represent the learner's help request parameters.
    */
-  const [topic, setTopic] = useState("React");
-  const [skillLevel, setSkillLevel] = useState("Beginner");
-  const [urgency, setUrgency] = useState("Medium");
-  const [description, setDescription] = useState("");
+ // Request form state.
+    const [topic, setTopic] = useState("React");
+    const [skillLevel, setSkillLevel] = useState("Beginner");
+    const [urgency, setUrgency] = useState("Medium");
+    const [description, setDescription] = useState("");
 
   /**
    * Submission and matching state.
@@ -33,7 +34,6 @@ export default function LearnerView({ onSubmitRequest }) {
    */
   const [submitted, setSubmitted] = useState(null);
   const [matches, setMatches] = useState([]);
-
   /**
    * AI assistant interaction state.
    */
