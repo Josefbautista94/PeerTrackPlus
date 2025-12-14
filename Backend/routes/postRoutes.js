@@ -1,11 +1,12 @@
 // dependencies
 import express from 'express';
 import PostRequest from '../models/userSchema.js';
+import { protect, adminOnly } from '../middleware/auth.js'
 const router = express.Router();
 
 ////////////////////////// REQUEST CRUD ///////////////////////////////////////
 // create request
-router.post('/requests', async(req, res) => { // 
+router.post('/requests', protect, async(req, res) => { // 
     try{
         const { title, level, urgency, content } = req.body; // 
         const newPostRequest = new PostRequest({ title, level, urgency, content });
@@ -17,7 +18,7 @@ router.post('/requests', async(req, res) => { //
     }
 });
 // read request and able to post
-router.get('/requests', async(req, res)=> {
+router.get('/requests', protect, async(req, res)=> {
     try {
         const allReqPost = await PostRequest.find({});
         res.json(allReqPost)
@@ -26,10 +27,11 @@ router.get('/requests', async(req, res)=> {
         res.status(500).json({message: err.message})
     }
 });
-// update? does an admin really need this?
-router.get('/requests/:id', async(req, res) => {
+//find post by id
+router.put('/requests/:id', protect, async(req, res) => {
     try {
-        const ReqPost = await PostRequest.findById(req.params.id);
+        const ReqPost = await PostRequest.findById(req.params.id)
+        .populate('createdBy', 'name');
         res.json(ReqPost)
     }
     catch (err) {
@@ -38,7 +40,7 @@ router.get('/requests/:id', async(req, res) => {
 });
 // delete admin must be ableto delete any REQUEST
 
-router.delete('/requests/:id', async(req, res)=> {
+router.delete('/requests/:id', protect, adminOnly, async(req, res)=> {
     try {
         const deleteReqPost = await PostRequest.findByIdAndDelete(req.params.id);
         res.json(deleteReqPost);
