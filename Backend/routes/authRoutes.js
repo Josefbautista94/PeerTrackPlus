@@ -18,7 +18,7 @@ router.post('/register', async (req, res) => {
     console.log('Request received!');
     console.log('req.body:', req.body); 
     try {
-        const { name, email, password, role } = req.body; 
+        const { name, email, password, role, skills } = req.body; 
         
         // Check if user already exists
         const existUser = await User.findOne({email});
@@ -27,7 +27,7 @@ router.post('/register', async (req, res) => {
         }
 
         // Create new user
-        const newUser = new User({ name, email, password, role });
+        const newUser = new User({ name, email, password, role, skills });
         await newUser.save();
 
         // Generate token
