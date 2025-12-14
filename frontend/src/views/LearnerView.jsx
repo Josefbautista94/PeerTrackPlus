@@ -18,6 +18,8 @@ import {
  * viewing matched tutors, and interacting with a lightweight AI assistant.
  */
 export default function LearnerView({ onSubmitRequest }) {
+  const { user } = useAuth();// retrieve user from hook
+
   /**
    * Request form state.
    * These values represent the learner's help request parameters.
@@ -108,15 +110,28 @@ export default function LearnerView({ onSubmitRequest }) {
   return (
     // Page-level wrapper for consistent background and spacing
     <div style={pageWrap}>
-      <div style={container}>
-        {/* Dashboard header */}
-        <div style={{ ...card, marginBottom: 16 }}>
-          <h2 style={cardTitle}>Learner Dashboard</h2>
-          <p style={{ margin: 0, color: colors.muted }}>
-            Submit a help request, see smart tutor matches, and use the AI study
-            assistant while you wait.
-          </p>
-        </div>
+            <div style={container}>
+                {/* Dashboard header */}
+                <div style={{ ...card, marginBottom: 16 }}>
+                    <h2 style={cardTitle}>Learner Dashboard</h2>
+                    
+                    {/* 3. DISPLAY USER INFORMATION HERE */}
+                    {user && (
+                        <div style={{ marginBottom: 10, color: colors.text }}>
+                            <p style={{ margin: 0 }}>
+                                Welcome back, <strong>{user.name}</strong>!
+                            </p>
+                            <p style={{ margin: 0, fontSize: 14, color: colors.muted }}>
+                                Email: {user.email} | Role: {user.role}
+                            </p>
+                        </div>
+                    )}
+                    
+                    <p style={{ margin: 0, color: colors.muted }}>
+                        Submit a help request, see smart tutor matches, and use the AI study
+                        assistant while you wait.
+                    </p>
+                </div>
 
         <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 16 }}>
           {/* Request submission card */}
