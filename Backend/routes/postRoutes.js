@@ -1,6 +1,6 @@
 // dependencies
 import express from 'express';
-import PostRequest from '../models/userSchema.js';
+import PostRequest from '../models/requestSchema.js';
 import { protect, adminOnly } from '../middleware/auth.js'
 const router = express.Router();
 

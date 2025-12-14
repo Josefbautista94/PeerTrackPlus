@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import User from '../models/userSchema.js';
 import { protect } from '../middleware/auth.js';
 
-const router = express.router();
+const router = express.Router();
 
 const generateToken = (userId) => {
     return jwt.sign(
@@ -14,21 +14,27 @@ const generateToken = (userId) => {
 }
 
 // create request, moved it from the userRoutes to convert to register
-router.post('/register', async (req, res) => { // 
-    try{
+router.post('/register', async (req, res) => {
+    console.log('Request received!');
+    console.log('req.body:', req.body); 
+    try {
         const { name, email, password, role } = req.body; 
         
+        // Check if user already exists
         const existUser = await User.findOne({email});
-        if(existUser) { //check if useer already exist by comparing email
+        if(existUser) {
             return res.status(400).json({message: 'Email already in use.'})
         }
 
+        // Create new user
         const newUser = new User({ name, email, password, role });
-        await newUser.save(); //Saves user 
+        await newUser.save();
 
+        // Generate token
         const token = generateToken(newUser._id);
 
-       const userResponse = {
+        // Prepare user response
+        const userResponse = {
             _id: newUser._id,
             name: newUser.name,
             email: newUser.email,
@@ -36,13 +42,13 @@ router.post('/register', async (req, res) => { //
             score: newUser.score
         };
 
-         res.status(201).json({
+        // Send response 
+        res.status(201).json({
             message: 'User registered successfully',
             token,
             user: userResponse
         });
-
-        res.status(201).json(newUser);
+        
     }
     catch (err) {
         res.status(400).json({message: err.message})
@@ -80,7 +86,8 @@ router.post('/login', async (req, res) => {
         });
 
     }catch (err) {
-        res.status(500).json({ message: err.message });
+        console.error('Registration error:', err);  // Log the full error
+        res.status(400).json({message: err.message})
     }
 }); 
 
@@ -88,3 +95,5 @@ router.post('/login', async (req, res) => {
 router.get('/me', protect, async (req, res) => {
     res.json(req.user);
 });
+
+export default router;
