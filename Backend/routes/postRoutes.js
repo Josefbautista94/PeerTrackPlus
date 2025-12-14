@@ -5,7 +5,7 @@ const router = express.Router();
 
 ////////////////////////// REQUEST CRUD ///////////////////////////////////////
 // create request
-router.post('/', async(req, res) => { // 
+router.post('/requests', async(req, res) => { // 
     try{
         const { title, level, urgency, content } = req.body; // 
         const newPostRequest = new PostRequest({ title, level, urgency, content });
@@ -17,7 +17,7 @@ router.post('/', async(req, res) => { //
     }
 });
 // read request and able to post
-router.get('/', async(req, res)=> {
+router.get('/requests', async(req, res)=> {
     try {
         const allReqPost = await PostRequest.find({});
         res.json(allReqPost)
@@ -27,7 +27,7 @@ router.get('/', async(req, res)=> {
     }
 });
 // update? does an admin really need this?
-router.get('/:id', async(req, res) => {
+router.get('/requests/:id', async(req, res) => {
     try {
         const ReqPost = await PostRequest.findById(req.params.id);
         res.json(ReqPost)
@@ -38,7 +38,7 @@ router.get('/:id', async(req, res) => {
 });
 // delete admin must be ableto delete any REQUEST
 
-router.delete('/:id', async(req, res)=> {
+router.delete('/requests/:id', async(req, res)=> {
     try {
         const deleteReqPost = await PostRequest.findByIdAndDelete(req.params.id);
         res.json(deleteReqPost);

@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import userRoutes from './routes/userRoutes.js';
+import postRoutes from './routes/postRoutes.js'
 
 dotenv.config();
 // variables for express and middlewares
@@ -10,7 +11,8 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 app.use(express.json()) // this always goes before routes
 app.use(cors());
-app.use('/api/users', userRoutes);
+app.use('/api/', userRoutes);
+app.use('/api/', postRoutes);
 // Connection to MONGODB
 const connect = async () => {
     try {

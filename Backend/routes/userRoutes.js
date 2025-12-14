@@ -7,8 +7,8 @@ const router = express.Router();
 // CREATE
 router.post('/users', async (req, res) => { // 
     try{
-        const { name, email } = req.body; // 
-        const newUser = new User({ name, email });
+        const { name, email, password } = req.body; // 
+        const newUser = new User({ name, email, password });
         await newUser.save();
         res.status(201).json(newUser);
     }
@@ -20,7 +20,7 @@ router.post('/users', async (req, res) => { //
 // READ ALL
 router.get('/users', async(req, res) => {
     try {
-        const allUsers = await User.find({}) 
+        const allUsers = await User.find({}).select('-password') 
         res.json(allUsers);
     }
     catch (err) {

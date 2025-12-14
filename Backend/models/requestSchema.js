@@ -10,6 +10,7 @@ const postRequestSchema = mongoose.Schema({
         name: { type: String },
         email: { type: String }
     },
+    status: { type: String },
     date: { type: Date, default: Date.now }
 },
 { timestamps: true });

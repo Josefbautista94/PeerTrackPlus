@@ -11,6 +11,7 @@ const requestSeed = [
         "email": "adriansantana.v@gmail.com",
         "role": "learner"
     },
+    "status": "completed",
     "date": "2024-12-13T15:30:45.123Z"
 }
 ]
