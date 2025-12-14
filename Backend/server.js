@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
-
+import connect from "./controllers/dbConnect.js";
 import userRoutes from "./routes/userRoutes.js";
 import postRoutes from "./routes/postRoutes.js";
 import aiRoutes from "./routes/ai.routes.js";
@@ -20,26 +20,6 @@ app.use(cors());
 app.use("/api/", userRoutes);
 app.use("/api/", postRoutes);
 app.use("/api/ai", aiRoutes); // AI routes (matching, chat, admin insights)
-
-const connect = async () => {
-  const uri = process.env.MONGO_URI;
-
-  // If no Mongo URI is provided, skip DB connection (safe for MVP/demo)
-  if (!uri) {
-    console.log("MONGO_URI is missing, skipping DB connection for now");
-    return;
-  }
-
-  try {
-    await mongoose.connect(uri);
-    mongoose.connection.once("open", () => {
-      console.log("Connected to MongoDB");
-    });
-  } catch (err) {
-    console.log(`Cannot connect to the DB ${err}`);
-  }
-};
-
 connect();
 
 /// place holder route
