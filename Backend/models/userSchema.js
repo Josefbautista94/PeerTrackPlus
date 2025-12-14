@@ -4,6 +4,7 @@ const userSchema = mongoose.Schema({
     name: { type: String, required: true}, 
     email: { type: String, required: true, unique: true},
     password: { type: String, required: true, select: false },
+    score: { type: Number, default: 0},
     role: { type: String, enum: ["learner", "alumni", "admin"], default: "learner"}
     
     /// add friend list?
