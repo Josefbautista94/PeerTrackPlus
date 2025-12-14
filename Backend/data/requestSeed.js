@@ -15,4 +15,4 @@ const requestSeed = [
 }
 ]
 
-export default requestInfo;
+export default requestSeed;
