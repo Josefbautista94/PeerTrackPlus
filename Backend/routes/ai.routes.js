@@ -2,14 +2,15 @@
 
 // This file maps API endpoints to their corresponding controller functions
 
-const express = require("express");
-const {
+import express from "express";
+import {
   matchTutors,
   aiChat,
   adminInsights
-} = require("../controllers/ai.controller");
+} from "../controllers/ai.controller.js";
 
 const router = express.Router();
+
 // POST /api/ai/match
 // Learner submits a topic and receives ranked tutor matches
 router.post("/match", matchTutors);
@@ -22,4 +23,4 @@ router.post("/chat", aiChat);
 // Admin endpoint for high-level insights and trends
 router.get("/admin-insights", adminInsights);
 
-module.exports = router;
+export default router;

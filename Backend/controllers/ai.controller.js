@@ -3,12 +3,9 @@
 // These functions handle incoming API requests and return JSON responses.
 // Controllers should stay lightweight, they call services to do the real logic
 
-const { generateAdminInsights } = require("../services/aiInsights.service");
-const { generateTutorMatches } = require("../services/aiMatch.service");
-const { generateGeminiReply } = require("../services/gemini.service");
-
-
-
+import { generateAdminInsights } from "../services/aiInsights.service.js";
+import { generateTutorMatches } from "../services/aiMatch.service.js";
+import { generateGeminiReply } from "../services/gemini.service.js";
 
 // POST /api/ai/match
 const matchTutors = (req, res) => { // We return a ranked list of tutor matches with scores + human readable reasons
@@ -32,21 +29,21 @@ const matchTutors = (req, res) => { // We return a ranked list of tutor matches 
   res.json({ matches }); // return results in JSON for the frontend to display
 };
 
-const aiChat = async (req, res) => { //	Defines the AI chat controller
+const aiChat = async (req, res) => { // Defines the AI chat controller
   const { topic, message } = req.body || {}; // Pulls user input from the request body, || {} prevents errors if req.body is undefined
 
   try {
     const data = await generateGeminiReply({ topic, message }); // Calls the Gemini service
-    res.json(data); // 	Sends the AI response back to the frontend
+    res.json(data); //  Sends the AI response back to the frontend
   } catch (err) {
-      console.error("Gemini error:", err.response?.data || err.message);
+    console.error("Gemini error:", err.response?.data || err.message);
     // Safe fallback for MVP/demo
     res.json({
-      reply: `This is a helpful hint about ${topic || "this topic"}.`, // 	Returns a static response if AI fails
+      reply: `This is a helpful hint about ${topic || "this topic"}.`, //   Returns a static response if AI fails
       practice: "Try explaining this concept step by step."
     });
   }
-}
+};
 
 // GET /api/ai/admin-insights
 // Admin endpoint that returns quick, high-level insights for the dashboard
@@ -56,7 +53,7 @@ const adminInsights = (req, res) => {
   res.json({ insights });
 };
 
-module.exports = {
+export {
   matchTutors,
   aiChat,
   adminInsights

@@ -2,11 +2,11 @@
 
 const normalize = (s = "") => s.toLowerCase().trim(); // A helper function which takes a string(s), converts it to lower case and removes extra spaces in the beginning and end
 
-const topicKeywords = (topic = "") => { // 	Takes the topic the learner typed in (example: "React JavaScript")
+const topicKeywords = (topic = "") => { //  Takes the topic the learner typed in (example: "React JavaScript")
 
-  const t = normalize(topic); // 	Normalizes it so case and spacing don’t matter
+  const t = normalize(topic); //  Normalizes it so case and spacing don’t matter
 
-  return t.split(/\s+/).filter(Boolean) // 	Splits the topic into individual words and removes any empty values
+  return t.split(/\s+/).filter(Boolean) //  Splits the topic into individual words and removes any empty values
 }
 
 //  core of skill based matching, more overlap = higher confidence match
@@ -38,7 +38,7 @@ const buildReason = ({ overlapCount, topic, hasAvailability, isActive, level }) 
 
     // Explain skill overlap
   if (overlapCount > 0) {
-    parts.push(`Skill match for "${topic}"`) //	If the tutor shares skills with the learner’s topic
+    parts.push(`Skill match for "${topic}"`) // If the tutor shares skills with the learner’s topic
   }
   // Highlight tutor availability
   if (hasAvailability) {
@@ -50,7 +50,7 @@ const buildReason = ({ overlapCount, topic, hasAvailability, isActive, level }) 
   }
     // Match learner level when provided
   if (level) {
-    parts.push(`Good for ${level} level`) // 	Tailors the explanation to learner level
+    parts.push(`Good for ${level} level`) //  Tailors the explanation to learner level
   }
     // Fallback explanation if no specific signals matched
   if (parts.length === 0) {
@@ -61,7 +61,7 @@ const buildReason = ({ overlapCount, topic, hasAvailability, isActive, level }) 
 }
 
 // Calculates a match score for a tutor based on multiple signals
-const scoreTutor = ({ overlapCount, hasAvailability, isActive, level }) => { //	Accepts a bundle of matching factors
+const scoreTutor = ({ overlapCount, hasAvailability, isActive, level }) => { // Accepts a bundle of matching factors
 
   let score = 0; // Score starts at 0
 
@@ -92,9 +92,9 @@ const scoreTutor = ({ overlapCount, hasAvailability, isActive, level }) => { //	
 // Main matching function
 // Inputs: topic, level, tutors[]
 // Output: top 3 ranked tutors with score + reason
-const generateTutorMatches = ({ topic, level, tutors }) => { //	Function takes one object so you can pass inputs cleanly, topic and level come from the learner request, •	tutors is the list of tutor profiles you are scoring.
+const generateTutorMatches = ({ topic, level, tutors }) => { // Function takes one object so you can pass inputs cleanly, topic and level come from the learner request, •  tutors is the list of tutor profiles you are scoring.
 
-  const keywords = topicKeywords(topic); // Breaks the topic into normalized keywords so matching is consistent, 	Example: "react javascript" becomes ["react", "javascript"].
+  const keywords = topicKeywords(topic); // Breaks the topic into normalized keywords so matching is consistent,  Example: "react javascript" becomes ["react", "javascript"].
 
   const ranked = tutors.map(t => { // Loops through every tutor and creates a new “scored tutor” object.
 
@@ -121,5 +121,4 @@ const generateTutorMatches = ({ topic, level, tutors }) => { //	Function takes o
   return ranked; // Returns the final list.
 };
 
-module.exports = { generateTutorMatches }
-
+export { generateTutorMatches };

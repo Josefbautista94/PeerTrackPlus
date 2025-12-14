@@ -1,4 +1,4 @@
-const axios = require("axios"); // Importing Axios cause its great
+import axios from "axios"; // Importing Axios cause its great
 
 const GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent"; // Gemini REST endpoint
 
@@ -29,7 +29,6 @@ Give a short helpful explanation, then one short practice question.
         {
             // Request body structure expected by Gemini
             contents: [{ parts: [{ text: prompt }] }]     // "contents" is an array of message
-
         },
         {
             headers: {
@@ -52,4 +51,4 @@ Give a short helpful explanation, then one short practice question.
     };
 };
 
-module.exports = { generateGeminiReply }
+export { generateGeminiReply };
