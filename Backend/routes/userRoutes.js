@@ -68,3 +68,5 @@ router.delete('/users/:id', async(req, res)=> {
         res.status(500).json({message: err.message});
     }
 });
+
+export default router;
