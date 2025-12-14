@@ -85,6 +85,11 @@ router.post('/login', async (req, res) => {
             user: userResponse
         });
 
+//            {
+//        "email": "adrian@exampl.com",
+//        "password": "password123"
+//    }
+
     }catch (err) {
         console.error('Registration error:', err);  // Log the full error
         res.status(400).json({message: err.message})
