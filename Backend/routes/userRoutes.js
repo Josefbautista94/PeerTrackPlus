@@ -1,6 +1,7 @@
 // dependencies
 import express from 'express';
 import User from '../models/userSchema.js';
+import { protect, adminOnly } from '../middleware/auth.js'
 const router = express.Router();
 
 
@@ -18,7 +19,7 @@ router.post('/users', async (req, res) => { //
 });
 
 // READ ALL
-router.get('/users', async(req, res) => {
+router.get('/users', protect,async(req, res) => {
     try {
         const allUsers = await User.find({}).select('-password') 
         res.json(allUsers);
@@ -42,7 +43,7 @@ router.get('/users/:id', async(req, res) => {
 });
 
 // UPDATE
-router.put('/users/:id', async (req, res) => {
+router.put('/users/:id', protect,async (req, res) => {
     try {
        const updateUser = await User.findByIdAndUpdate(req.params.id, req.body, { new: true });
        if (!updateUser) {
@@ -56,7 +57,7 @@ router.put('/users/:id', async (req, res) => {
 });
 
 // DELETE
-router.delete('/users/:id', async(req, res)=> {
+router.delete('/users/:id', protect, adminOnly, async(req, res)=> {
     try {
         const deleteUser = await User.findByIdAndDelete(req.params.id);
         if (!deleteUser) {
