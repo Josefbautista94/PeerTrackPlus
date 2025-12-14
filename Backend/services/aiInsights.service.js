@@ -2,7 +2,7 @@
 
 
 // Generates high-level insights for the admin dashboard
-// For MVP, this returns static example insights
+// For Minimum Viable Product, this returns static example insights
 // Later, these can be generated dynamically from real usage data
 const generateAdminInsights = () => {
   return [

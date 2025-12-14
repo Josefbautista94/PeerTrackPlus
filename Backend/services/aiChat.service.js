@@ -2,7 +2,7 @@
 
 
 // Generates a study assistant response for learners
-// For MVP this returns a static helpful response
+// For Minimum Viable Product this returns a static helpful response
 // Later this can be replaced with a real AI model (Gemini) with a fallbacl
 export const generateStudyResponse = (topic, message) => {
   return {

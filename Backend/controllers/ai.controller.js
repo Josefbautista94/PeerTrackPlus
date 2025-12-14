@@ -1,10 +1,12 @@
 // AI controllers will live here
 
 // These functions handle incoming API requests and return JSON responses.
-// Controllers should stay lightweight, they call services to do the real login
+// Controllers should stay lightweight, they call services to do the real logic
 
 const { generateAdminInsights } = require("../services/aiInsights.service");
 const { generateTutorMatches } = require("../services/aiMatch.service");
+const { generateGeminiReply } = require("../services/gemini.service");
+
 
 
 
@@ -17,7 +19,7 @@ const matchTutors = (req, res) => { // We return a ranked list of tutor matches 
   }
 
   // mock tutors for Minimum Viable Product
-  // Later we can replace this with real tutors pulled from Mongo DB
+  // Later we can replace this with real tutors pulled from MongoDB
   const tutors = [
     { tutorId: "t1", name: "Alex", skills: ["react", "javascript", "apis"], available: true, active: true },
     { tutorId: "t2", name: "Sam", skills: ["node", "express", "mongodb"], available: true, active: false },
@@ -30,18 +32,21 @@ const matchTutors = (req, res) => { // We return a ranked list of tutor matches 
   res.json({ matches }); // return results in JSON for the frontend to display
 };
 
-// POST /api/ai/chat
-// AI study assistant endpoint
-// For Minimum Viable Product this returns a simple helpful response
-// Laterrrr we can swap this out to call a real AI model (Gemini) with fall back
-const aiChat = (req, res) => {
-  const { topic } = req.body;
+const aiChat = async (req, res) => { //	Defines the AI chat controller
+  const { topic, message } = req.body || {}; // Pulls user input from the request body, || {} prevents errors if req.body is undefined
 
-  res.json({
-    reply: `Here’s a quick explanation related to ${topic}.`,
-    practice: "Can you explain this concept in your own words?"
-  });
-};
+  try {
+    const data = await generateGeminiReply({ topic, message }); // Calls the Gemini service
+    res.json(data); // 	Sends the AI response back to the frontend
+  } catch (err) {
+      console.error("Gemini error:", err.response?.data || err.message);
+    // Safe fallback for MVP/demo
+    res.json({
+      reply: `This is a helpful hint about ${topic || "this topic"}.`, // 	Returns a static response if AI fails
+      practice: "Try explaining this concept step by step."
+    });
+  }
+}
 
 // GET /api/ai/admin-insights
 // Admin endpoint that returns quick, high-level insights for the dashboard
