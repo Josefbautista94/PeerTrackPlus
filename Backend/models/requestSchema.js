@@ -5,6 +5,11 @@ const postRequestSchema = mongoose.Schema({
     level: { type: String, required: true},
     urgency: { type: String, required: true},
     content: { type: String, required: true},
+    createdBy: { 
+        userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User'},
+        name: { type: String },
+        email: { type: String }
+    },
     date: { type: Date, default: Date.now }
 },
 { timestamps: true });
