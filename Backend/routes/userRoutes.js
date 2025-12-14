@@ -5,18 +5,6 @@ import { protect, adminOnly } from '../middleware/auth.js'
 const router = express.Router();
 
 
-// CREATE
-router.post('/users', async (req, res) => { // 
-    try{
-        const { name, email, password } = req.body; // 
-        const newUser = new User({ name, email, password });
-        await newUser.save();
-        res.status(201).json(newUser);
-    }
-    catch (err) {
-        res.status(400).json({message: err.message})
-    }
-});
 
 // READ ALL
 router.get('/users', protect,async(req, res) => {
