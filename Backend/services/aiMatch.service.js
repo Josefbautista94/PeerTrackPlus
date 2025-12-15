@@ -1,124 +1,104 @@
-// Tutor matching logic will live here
+// aiMatch.service.js
+// Tutor matching logic lives here
 
-const normalize = (s = "") => s.toLowerCase().trim(); // A helper function which takes a string(s), converts it to lower case and removes extra spaces in the beginning and end
+// Normalize a single string safely
+const normalize = (value = "") =>
+  String(value).trim().toLowerCase();
 
-const topicKeywords = (topic = "") => { //  Takes the topic the learner typed in (example: "React JavaScript")
+// Optional skill aliases so "reactjs" and "react.js" match "react"
+const aliasSkill = (skill) => {
+  const s = normalize(skill);
 
-  const t = normalize(topic); //  Normalizes it so case and spacing don’t matter
+  if (s === "reactjs" || s === "react.js") return "react";
+  if (s === "nodejs" || s === "node.js") return "node";
 
-  return t.split(/\s+/).filter(Boolean) //  Splits the topic into individual words and removes any empty values
-}
+  return s;
+};
 
-//  core of skill based matching, more overlap = higher confidence match
-const overlaps = (keywords, skills) => { 
+// Convert "React JavaScript" into ["react", "javascript"]
+const topicKeywords = (topic = "") => {
+  const t = normalize(topic);
+  if (!t) return [];
+  return t.split(/\s+/).filter(Boolean);
+};
 
-  const skillSet = new Set(skills.map(normalize)) // Converts the tutor's skills into a Set for a faster look up and also normalizes each skill
+// Ensure skills always become an array of normalized skills
+// Accepts: ["React", "JavaScript"] OR "React" OR undefined
+const normalizeSkills = (skills) => {
+  if (Array.isArray(skills)) return skills.map(aliasSkill).filter(Boolean);
+  if (skills) return [aliasSkill(skills)].filter(Boolean);
+  return [];
+};
 
-  let hits = 0; // Initializing a counter to track our matches
+// Count overlap between topic keywords and tutor skills
+const overlapCount = (keywords, skills) => {
+  const skillSet = new Set(normalizeSkills(skills));
 
-  for (let k of keywords) { //Looping through each keyword from the learner's topic
-
-    if (skillSet.has(k)) {
-
-      hits += 1 // Increments the score for each match
-    
-    }
-
+  let hits = 0;
+  for (const k of keywords) {
+    const key = aliasSkill(k);
+    if (skillSet.has(key)) hits += 1;
   }
 
-  return hits; // Returns how many skills match, this is going to be fed directly into the tutor's score later
-}
+  return hits;
+};
 
+// Human readable explanation of why a tutor matched
+const buildReason = ({ overlap, topic, hasAvailability, isActive, level }) => {
+  const parts = [];
 
-// This function creates a human readable explanation for why a tutor was matched
-// for example : “Skill match for ‘React’, available soon, recently active, good for beginner level”
-const buildReason = ({ overlapCount, topic, hasAvailability, isActive, level }) => { // Destructuring makes it clear what data affects the explanation
+  if (overlap > 0) parts.push(`Skill match for "${topic}"`);
+  if (hasAvailability) parts.push("Available soon");
+  if (isActive) parts.push("Recently active");
+  if (level) parts.push(`Good for ${level} level`);
 
-  const parts = []; // We're going to collect the explanation of fragments in this array right here
+  if (parts.length === 0) return "General match based on profile";
+  return parts.join(", ");
+};
 
-    // Explain skill overlap
-  if (overlapCount > 0) {
-    parts.push(`Skill match for "${topic}"`) // If the tutor shares skills with the learner’s topic
-  }
-  // Highlight tutor availability
-  if (hasAvailability) {
-    parts.push(`Available soon`) // This helps learners understand why someone is ranked higher
-  }
-    // Reward recent activity
-  if (isActive) {
-    parts.push(`Recently Active`) // Signals responsiveness to learners
-  }
-    // Match learner level when provided
-  if (level) {
-    parts.push(`Good for ${level} level`) //  Tailors the explanation to learner level
-  }
-    // Fallback explanation if no specific signals matched
-  if (parts.length === 0) {
-    return `General match based on profile` 
-  }
-   // Combine all explanation parts into a single sentence
-    return parts.join(', ')
-}
+// Score tutor based on signals
+const scoreTutor = ({ overlap, hasAvailability, isActive, level }) => {
+  let score = 0;
 
-// Calculates a match score for a tutor based on multiple signals
-const scoreTutor = ({ overlapCount, hasAvailability, isActive, level }) => { // Accepts a bundle of matching factors
+  // Strongest signal
+  score += overlap * 40;
 
-  let score = 0; // Score starts at 0
+  if (hasAvailability) score += 15;
+  if (isActive) score += 10;
 
-   // Skill overlap is the strongest signal
-  score += overlapCount * 40   // Each matching keyword adds significant weight
+  if (level === "beginner") score += 5;
+  if (level === "intermediate") score += 3;
 
-  if (hasAvailability) { // Tutors who are available soon get a boost
-    score += 15
-  }
-
-  if (isActive) { // Rewards tutors who are recently active
-    score += 10
-  }
-
-    // Small bonus based on learner level
-  if (level === "beginner") {
-    score += 5
-  }
-
-  if (level === "intermediate") {
-    score += 3
-  }
-
-  return Math.min(score, 100) // Caps the score at 100 and keeps scores easy to read and compare, prevents runaway values
-
-}
+  return Math.min(score, 100);
+};
 
 // Main matching function
-// Inputs: topic, level, tutors[]
-// Output: top 3 ranked tutors with score + reason
-const generateTutorMatches = ({ topic, level, tutors }) => { // Function takes one object so you can pass inputs cleanly, topic and level come from the learner request, •  tutors is the list of tutor profiles you are scoring.
+// Inputs: { topic, level, tutors[] }
+// Output: top 3 tutors with score + reason
+const generateTutorMatches = ({ topic, level, tutors = [] }) => {
+  const keywords = topicKeywords(topic);
 
-  const keywords = topicKeywords(topic); // Breaks the topic into normalized keywords so matching is consistent,  Example: "react javascript" becomes ["react", "javascript"].
+  const ranked = tutors
+    .map((t) => {
+      const overlap = overlapCount(keywords, t.skills);
 
-  const ranked = tutors.map(t => { // Loops through every tutor and creates a new “scored tutor” object.
+      const hasAvailability = Boolean(t.available);
+      const isActive = Boolean(t.active);
 
-    const overlapCount = overlaps(keywords, t.skills || []) // Counts how many of the topic keywords are present in the tutor’s skills
+      const score = scoreTutor({ overlap, hasAvailability, isActive, level });
+      const reason = buildReason({ overlap, topic, hasAvailability, isActive, level });
 
-    const hasAvailability = Boolean(t.available); // Converts whatever t.available is into a clean true or false.
+      return {
+        tutorId: t.tutorId || t._id || t.id,
+        name: t.name,
+        score,
+        reason,
+      };
+    })
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 3);
 
-    const isActive = Boolean(t.active) // Same idea, true if tutor is active, false otherwise
-
-    const score = scoreTutor({ overlapCount, hasAvailability, isActive, level }); // Uses your scoring weights to calculate a match score for this tutor.
-
-    const reason = buildReason({ overlapCount, topic, hasAvailability, isActive, level }); // Builds a human readable explanation string that matches the score logic.
-
-    return { // Is going to return the structured result the frontend can render easily.
-      tutorId: t.tutorId,
-      name: t.name,
-      score,
-      reason
-    };
-  })
-    .sort((a, b) => b.score - a.score) // Sorts tutors from highest score to lowest
-    .slice(0, 3); // Since its a Minimum Viable Product only return the top 3 matches
-
-  return ranked; // Returns the final list.
+  return ranked;
 };
 
 export { generateTutorMatches };

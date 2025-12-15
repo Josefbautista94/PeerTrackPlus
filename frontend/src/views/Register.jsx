@@ -11,7 +11,7 @@ import {
 } from "../styles/authStyles";
 
 // ⚠️ IMPORTANT: Replace this with your actual backend API URL
-const API_BASE_URL = "http://localhost:5000/api/auth"; // Example: Your backend port/route
+const API_BASE_URL = "http://localhost:3000/api/auth"; // Example: Your backend port/route
 
 export default function Register() {
     // We will use login from AuthContext AFTER successful registration

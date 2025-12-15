@@ -11,8 +11,8 @@ import {
 } from "../styles/authStyles";
 
 // ⚠️ IMPORTANT: Replace this with your actual backend API URL
-const API_BASE_URL = "http://localhost:5000/api/auth"; // Using the /api/auth prefix
-
+const API_BASE_URL = "http://localhost:3000/api/auth" // Using the /api/auth prefix
+;
 // Note: We will keep ADMIN_EMAIL for the redirect logic, but actual authentication
 // will now be handled by the backend's email/password validation.
 const ADMIN_EMAIL = "admin@peerscholas.org"; 

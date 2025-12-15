@@ -1,41 +1,56 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import bodyParser from "body-parser";  // Add this
+
 import connect from "./controllers/dbConnect.js";
 import userRoutes from "./routes/userRoutes.js";
 import postRoutes from "./routes/postRoutes.js";
 import aiRoutes from "./routes/ai.routes.js";
-import authRoutes from "./routes/authRoutes.js"
+import authRoutes from "./routes/authRoutes.js";
+
 dotenv.config();
 
-// variables for express and middlewares
+// Create express app FIRST
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5000;
 
+// ---------- Global Middleware (ORDER MATTERS) ----------
+
+// Parse JSON bodies
 app.use(express.json());
-app.use(express.urlencoded({ extended: true })); // Also add this for good measure
-app.use(cors());
 
+// Parse URL-encoded bodies (forms)
+app.use(express.urlencoded({ extended: true }));
+
+// CORS configuration (must be before routes)
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  })
+);
+
+// ---------- Test Route ----------
 app.post("/test", (req, res) => {
-    console.log("Test route - req.body:", req.body);
-    res.json({ body: req.body });
+  console.log("Test route - req.body:", req.body);
+  res.json({ body: req.body });
 });
 
+// ---------- Routes ----------
+app.use("/api/auth", authRoutes); // register / login
+app.use("/api", userRoutes);      // user routes
+app.use("/api", postRoutes);      // help request routes
+app.use("/api/ai", aiRoutes);     // AI routes
 
-// Routes
-app.use("/api/auth", authRoutes); //register and auth routes
-app.use("/api/", userRoutes); // user routes for get, update and delete
-app.use("/api/", postRoutes); // help request routes
-app.use("/api/ai", aiRoutes); // AI routes (matching, chat, admin insights)
+// ---------- Database ----------
 connect();
 
-/// place holder route
+// ---------- Root ----------
 app.get("/", (req, res) => {
   res.send("PeerTrack+ backend is running!");
 });
 
-//server running
+// ---------- Server ----------
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
