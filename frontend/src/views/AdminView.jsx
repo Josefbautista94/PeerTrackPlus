@@ -13,16 +13,15 @@ const API_BASE_URL = "http://localhost:5000/api";
 export default function AdminView() {
     const { user, getAuthHeader } = useAuth(); // Get user details and token helper
 
-    // --- State for fetched data ---
+
     const [allUsers, setAllUsers] = useState([]);
     const [allRequests, setAllRequests] = useState([]);
     const [dataLoading, setDataLoading] = useState(true);
     const [dataError, setDataError] = useState(null);
-    
-    // --- Data Fetching Logic ---
+ 
     useEffect(() => {
         const loadAdminData = async () => {
-            // Check for client-side role and authentication before making requests
+      
             if (!user || user.role !== 'admin') {
                 setDataError("Access Denied: You must be logged in as an administrator.");
                 setDataLoading(false);
@@ -35,10 +34,10 @@ export default function AdminView() {
             try {
                 const headers = {
                     'Content-Type': 'application/json',
-                    ...getAuthHeader(), // Includes 'Authorization: Bearer <token>'
+                    ...getAuthHeader(), 
                 };
                 
-                // 1. Fetch All Users (Endpoint: /api/users)
+              
                 const usersResponse = await fetch(`${API_BASE_URL}/users`, { headers });
                 const usersData = await usersResponse.json();
                 
@@ -48,7 +47,7 @@ export default function AdminView() {
                     throw new Error(usersData.message || 'Failed to fetch users list.');
                 }
 
-                // 2. Fetch All Requests (Endpoint: /api/requests)
+           
                 const requestsResponse = await fetch(`${API_BASE_URL}/requests`, { headers });
                 const requestsData = await requestsResponse.json();
 
@@ -67,18 +66,74 @@ export default function AdminView() {
         };
 
         loadAdminData();
-        // Depend on user and getAuthHeader to re-run on login/logout
+       
     }, [user, getAuthHeader]); 
+    //delete user
+     const handleDeleteUser = async (userId, userName) => {
+        if (!window.confirm(`Are you sure you want to delete user "${userName}"? This action cannot be undone.`)) {
+            return;
+        }
 
-    // --- Derived Metrics (Calculated from fetched data) ---
+        try {
+            const headers = {
+                'Content-Type': 'application/json',
+                ...getAuthHeader(),
+            };
+
+            const response = await fetch(`${API_BASE_URL}/users/${userId}`, {
+                method: 'DELETE',
+                headers
+            });
+
+            if (response.ok) {
+                setAllUsers(prevUsers => prevUsers.filter(u => u._id !== userId));
+                alert(`User "${userName}" has been deleted successfully.`);
+            } else {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Failed to delete user');
+            }
+        } catch (error) {
+            console.error("Delete User Error:", error);
+            alert(`Failed to delete user: ${error.message}`);
+        }
+    };
+
+    //delete request
+    const handleDeleteRequest = async (requestId, requestTitle) => {
+        if (!window.confirm(`Are you sure you want to delete request "${requestTitle}"? This action cannot be undone.`)) {
+            return;
+        }
+
+        try {
+            const headers = {
+                'Content-Type': 'application/json',
+                ...getAuthHeader(),
+            };
+
+            const response = await fetch(`${API_BASE_URL}/requests/${requestId}`, {
+                method: 'DELETE',
+                headers
+            });
+
+            if (response.ok) {
+                setAllRequests(prevRequests => prevRequests.filter(r => r._id !== requestId));
+                alert(`Request "${requestTitle}" has been deleted successfully.`);
+            } else {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Failed to delete request');
+            }
+        } catch (error) {
+            console.error("Delete Request Error:", error);
+            alert(`Failed to delete request: ${error.message}`);
+        }
+    };
+ 
     const totalUsers = allUsers.length;
     const totalRequests = allRequests.length;
-    
-    // Simple demo data for metrics not available in the fetched lists
     const completedSessions = 7; 
     const totalPoints = 150; 
-    
     const latestRequest = allRequests.length > 0 ? allRequests[allRequests.length - 1] : null;
+
 
     const insights = [
         `Total Registered Users: ${totalUsers}`,
@@ -87,21 +142,10 @@ export default function AdminView() {
         `Latest Request Topic: ${latestRequest?.title || "N/A"}`,
     ];
 
-    // --- Loading and Error Views ---
-    if (dataLoading) {
-        return <div style={pageWrap}><div style={container}><p>Loading administrator dashboard data...</p></div></div>;
-    }
-
-    if (dataError) {
-        return <div style={pageWrap}><div style={container}><p style={{ color: 'crimson', fontWeight: 'bold' }}>Error: {dataError}</p></div></div>;
-    }
-
-
     return (
-        // Page-level wrapper for consistent background and spacing
+     
         <div style={pageWrap}>
             <div style={container}>
-                {/* Admin dashboard card */}
                 <div style={{ ...card }}>
                     <h2 style={cardTitle}>Admin Dashboard</h2>
                     
@@ -111,7 +155,6 @@ export default function AdminView() {
                         </p>
                     )}
 
-                    {/* Admin content sections */}
                     <div
                         style={{
                             display: "grid",
@@ -120,7 +163,7 @@ export default function AdminView() {
                             maxWidth: 800, // Make a bit wider for lists
                         }}
                     >
-                        {/* 📊 Platform-wide statistics */}
+                        
                         <div
                             style={{
                                 border: "1px solid rgba(255,255,255,0.35)",
@@ -147,8 +190,6 @@ export default function AdminView() {
                                 <strong style={{ color: colors.white }}>{totalPoints}</strong>
                             </div>
                         </div>
-
-                        {/* 💡 Aggregated insights */}
                         <div
                             style={{
                                 border: "1px solid rgba(255,255,255,0.35)",
@@ -167,21 +208,95 @@ export default function AdminView() {
                             </ul>
                         </div>
                         
-                        {/* 👥 List of All Registered Users */}
-                        <div style={{ border: "1px solid rgba(255,255,255,0.35)", borderRadius: 10, padding: 12 }}>
+                        {/*All users*/}
+                         <div style={{ border: "1px solid rgba(255,255,255,0.35)", borderRadius: 10, padding: 12 }}>
                             <strong>All Users ({allUsers.length})</strong>
-                            <div style={{ maxHeight: 250, overflowY: 'auto', marginTop: 8 }}>
+                            <div style={{ maxHeight: 400, overflowY: 'auto', marginTop: 8 }}>
                                 {allUsers.map((u) => (
-                                    <div key={u._id} style={{ padding: '5px 0', borderBottom: '1px dotted rgba(255,255,255,0.1)' }}>
-                                        <strong style={{ color: colors.white }}>{u.name}</strong> 
-                                        <span style={{ color: colors.muted }}> ({u.email}) - {u.role}</span>
+                                    <div 
+                                        key={u._id} 
+                                        style={{ 
+                                            padding: '8px 0', 
+                                            borderBottom: '1px dotted rgba(255,255,255,0.1)',
+                                            display: 'flex',
+                                            justifyContent: 'space-between',
+                                            alignItems: 'center',
+                                            gap: 12
+                                        }}
+                                    >
+                                        <div style={{ flex: 1 }}>
+                                            <strong style={{ color: colors.white }}>{u.name}</strong> 
+                                            <span style={{ color: colors.muted }}> ({u.email})</span>
+                                            <div style={{ fontSize: 12, color: colors.muted, marginTop: 2 }}>
+                                                Role: {u.role} | Score: {u.score || 0}
+                                            </div>
+                                        </div>
+                                        <button
+                                            onClick={() => handleDeleteUser(u._id, u.name)}
+                                            
+                                        >
+                                            Delete
+                                        </button>
                                     </div>
                                 ))}
                             </div>
                         </div>
 
                         {/*Requests */}
-                        {latestRequest ? (
+                                 <div style={{ border: "1px solid rgba(255,255,255,0.35)", borderRadius: 10, padding: 12 }}>
+                            <strong>All Requests ({allRequests.length})</strong>
+                            <div style={{ maxHeight: 400, overflowY: 'auto', marginTop: 8 }}>
+                                {allRequests.length === 0 ? (
+                                    <p style={{ color: colors.muted, margin: '8px 0' }}>No requests found.</p>
+                                ) : (
+                                    allRequests.map((r) => (
+                                        <div 
+                                            key={r._id} 
+                                            style={{ 
+                                                padding: '12px', 
+                                                borderBottom: '1px solid rgba(255,255,255,0.1)',
+                                                marginBottom: 8,
+                                                background: 'rgba(255,255,255,0.05)',
+                                                borderRadius: 8
+                                            }}
+                                        >
+                                            <div style={{ 
+                                                display: 'flex', 
+                                                justifyContent: 'space-between',
+                                                alignItems: 'flex-start',
+                                                gap: 12,
+                                                marginBottom: 8
+                                            }}>
+                                                <div style={{ flex: 1 }}>
+                                                    <strong style={{ color: colors.white, fontSize: 15 }}>
+                                                        {r.title}
+                                                    </strong>
+                                                    <div style={{ fontSize: 12, color: colors.muted, marginTop: 4 }}>
+                                                        Level: {r.level} | Urgency: {r.urgency} | Status: {r.status || 'open'}
+                                                    </div>
+                                                    <div style={{ fontSize: 13, color: colors.muted, marginTop: 6 }}>
+                                                        {r.content}
+                                                    </div>
+                                                    {r.createdBy && (
+                                                        <div style={{ fontSize: 12, color: colors.muted, marginTop: 4 }}>
+                                                            Created by: {r.createdBy.name || r.createdBy.email || 'Unknown'}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                                <button
+                                                    onClick={() => handleDeleteRequest(r._id, r.title)}
+                                                >
+                                                    Delete
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Latest Request Snapshot */}
+                        {latestRequest && (
                             <div
                                 style={{
                                     border: "1px solid rgba(255,255,255,0.35)",
@@ -204,12 +319,11 @@ export default function AdminView() {
                                     {latestRequest.content || "—"}
                                 </div>
                             </div>
-                        ) : (
-                            <p style={{ color: colors.muted }}>No requests have been submitted yet.</p>
                         )}
+                    </div>
                     </div>
                 </div>
             </div>
-        </div>
+        
     );
 }
