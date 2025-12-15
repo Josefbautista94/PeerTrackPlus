@@ -60,14 +60,14 @@ export default function App() {
      * Prevents users from manually navigating to unauthorized routes.
      */
     const canSeeLearner = userRole === "learner";
-    const canSeeTutor = userRole === "tutor";
+    const canSeeTutor = userRole === "alumni";
     const canSeeAdmin = userRole === "admin";
 
     /**
      * Default landing route after login or refresh.
      */
     const homeRoute =
-        userRole === "admin" ? "/admin" : userRole === "tutor" ? "/tutor" : "/learner";
+        userRole === "admin" ? "/admin" : userRole === "alumni" ? "/tutor" : "/learner";
 
     /**
      * Handles submission of a new learner request.
@@ -78,7 +78,7 @@ export default function App() {
         setStatus("open");
         setTotalRequests((n) => n + 1);
 
-        if (userRole === "tutor") navigate("/tutor");
+        if (userRole === "alumni") navigate("/tutor");
         else if (userRole === "admin") navigate("/admin");
         else navigate("/learner");
     }
@@ -99,7 +99,7 @@ export default function App() {
         setCompletedSessions((n) => n + 1);
 
         if (userRole === "admin") navigate("/admin");
-        else if (userRole === "tutor") navigate("/tutor");
+        else if (userRole === "alumni") navigate("/tutor");
         else navigate("/learner");
     }
 
@@ -121,7 +121,7 @@ export default function App() {
         if (!allowedRoles.includes(nextRole)) return;
 
         if (nextRole === "Learner") navigate("/learner");
-        if (nextRole === "Tutor") navigate("/tutor");
+        if (nextRole === "alumni") navigate("/tutor");
         if (nextRole === "Admin") navigate("/admin");
     }
 

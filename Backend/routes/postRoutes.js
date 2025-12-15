@@ -1,4 +1,3 @@
-// dependencies
 import express from 'express';
 import PostRequest from '../models/requestSchema.js';
 import { protect, adminOnly } from '../middleware/auth.js'

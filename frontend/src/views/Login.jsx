@@ -24,38 +24,28 @@ export default function Login() {
     // Login form state
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [role, setRole] = useState("learner"); // Used only for demo/simulated redirects
     const [error, setError] = useState(""); // State for displaying API errors
     const [loading, setLoading] = useState(false); // State for button loading
 
     const normalizedEmail = email.trim().toLowerCase();
     const isAdminEmail = normalizedEmail === ADMIN_EMAIL;
 
-    useEffect(() => {
-        if (isAdminEmail) {
-            setRole("admin"); // Setting role to 'admin' for correct local redirect logic
-        } else {
-            setRole("learner"); // Reset role if admin email is removed
-        }
-    }, [isAdminEmail]);
 
     /**
      * Handles login submission.
      * Replaced simulated login with actual API call.
      */
-    async function handleSubmit(e) {
+   async function handleSubmit(e) {
         e.preventDefault();
         setError("");
         setLoading(true);
         
-        // Data to send to the backend
         const loginData = {
             email: normalizedEmail,
             password,
         };
 
         try {
-            // 1. Send Login Request to Backend
             const response = await fetch(`${API_BASE_URL}/login`, {
                 method: "POST",
                 headers: {
@@ -67,24 +57,17 @@ export default function Login() {
             const data = await response.json();
 
             if (response.ok) {
-                // 2. Successful Login: Save session using AuthContext
-                
-                // The backend responds with the full user object (including role) and a token.
                 login(data.user, data.token); 
-
-                // 3. Redirect user based on the role received from the backend
-                const userRole = data.user.role; // Use the role from the backend response
-
+                const userRole = data.user.role;
                 if (userRole === "admin") navigate("/admin");
-                else if (userRole === "tutor") navigate("/tutor");
+                else if (userRole === "tutor") navigate("/tutor"); 
                 else navigate("/learner");
 
             } else {
-                // 4. Handle API Errors (e.g., "Invalid credentials")
+                
                 setError(data.message || "Login failed. Please check your credentials.");
             }
         } catch (err) {
-            // 5. Handle Network/Server Errors
             console.error("Login Network Error:", err);
             setError("Could not connect to the server. Please check your network.");
         } finally {
@@ -125,6 +108,7 @@ export default function Login() {
                         required
                     />
                   
+
                     {isAdminEmail && (
                         <small
                             style={{

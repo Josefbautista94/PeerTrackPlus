@@ -17,7 +17,7 @@ export default function RoleSwitcher({
      * Filter available tabs based on allowed roles.
      * Prevents unauthorized roles from appearing in the UI.
      */
-    const tabs = ["Learner", "Tutor", "Admin"].filter((t) =>
+    const tabs = ["learner", "alumni", "admin"].filter((t) =>
         allowedRoles.includes(t)
     );
 
