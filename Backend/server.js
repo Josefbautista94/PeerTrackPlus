@@ -8,7 +8,7 @@ import postRoutes from "./routes/postRoutes.js";
 import aiRoutes from "./routes/ai.routes.js";
 import authRoutes from "./routes/authRoutes.js";
 
-dotenv.config();
+dotenv.config({ path: new URL("./.env", import.meta.url) });
 
 // Create express app FIRST
 const app = express();

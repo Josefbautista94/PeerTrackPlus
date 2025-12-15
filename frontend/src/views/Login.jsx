@@ -35,6 +35,7 @@ export default function Login() {
      * Handles login submission.
      * Replaced simulated login with actual API call.
      */
+    
    async function handleSubmit(e) {
         e.preventDefault();
         setError("");

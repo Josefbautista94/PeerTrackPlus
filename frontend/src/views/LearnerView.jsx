@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { sendAiMessage } from "../api/aiApi";
 import {
     pageWrap,
     container,
@@ -82,12 +83,23 @@ export default function LearnerView({ onSubmitRequest }) {
      * Simulates an AI assistant response.
      * In a production environment, this would call an API.
      */
-    function handleAskAssistant() {
-        setAssistantRes({
-            reply: `Quick hint (${topic}): break the problem into small steps and verify what changes at each step.`,
-            practice: `Practice: What’s one common beginner mistake in ${topic}?`,
-        });
-    }
+async function handleAskAssistant() {
+  try {
+    const data = await sendAiMessage({
+      topic,
+      message: question, // send what the learner typed
+    });
+
+    setAssistantRes(data);
+  } catch (err) {
+    console.error("AI request failed:", err);
+
+    setAssistantRes({
+      reply: `Quick hint (${topic}): break the problem into small steps and verify what changes at each step.`,
+      practice: `Practice: What’s one common beginner mistake in ${topic}?`,
+    });
+  }
+}
 
     return (
         // Page-level wrapper for consistent background and spacing

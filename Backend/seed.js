@@ -1,36 +1,41 @@
-import express from 'express';
-import dotenv from 'dotenv';
-import userSeed from './data/userSeed.js';
-import requestSeed from './data/requestSeed.js';
-import mongoose from 'mongoose';
-import User from './models/userSchema.js';
-import PostRequest from './models/requestSchema.js';
-
+import dotenv from "dotenv";
 dotenv.config();
-//connects to the db to initialize insertion
-mongoose.connect(process.env.MONGO_URI)
-.then(()=> {
-    console.log("Conneted to MongoDB for seeding");
-    return seedData();
-})
-.catch((err) => {
-    console.error('Connection Error:', err.message);
+
+import connect from "./controllers/dbConnect.js";
+import User from "./models/userSchema.js";
+import Request from "./models/requestSchema.js";
+
+import userSeed from "./data/userSeed.js";
+import requestSeed from "./data/requestSeed.js";
+
+import bcrypt from "bcrypt";
+
+async function seedDatabase() {
+  try {
+    await connect();
+
+    // Clear collections
+    await User.deleteMany({});
+    await Request.deleteMany({});
+
+    // IMPORTANT: insertMany does NOT trigger pre("save") hashing middleware
+    // So we hash passwords manually before insertMany
+    const hashedUsers = await Promise.all(
+      userSeed.map(async (u) => {
+        const hashedPassword = await bcrypt.hash(u.password, 10);
+        return { ...u, password: hashedPassword };
+      })
+    );
+
+    await User.insertMany(hashedUsers);
+    await Request.insertMany(requestSeed);
+
+    console.log("✅ Database seeded successfully with hashed passwords!");
+    process.exit(0);
+  } catch (error) {
+    console.error("❌ Seeding failed:", error);
     process.exit(1);
-});
-//insert data
-async function seedData() {
-    try {
-        await User.deleteMany(); // clearing mongodb from users. preventing any conflicts
-        await PostRequest.deleteMany();
-
-        const newUsers = await User.insertMany(userSeed);
-        const newPost = await PostRequest.insertMany(requestSeed);
-
-        console.log("Users, and posts requests have been seeded succesfully");
-        process.exit();
-    }
-    catch(error) {
-        console.error(`Something went wrong loading the seed data: ${err.message}`);
-          process.exit(1);
-    }
+  }
 }
+
+seedDatabase();
