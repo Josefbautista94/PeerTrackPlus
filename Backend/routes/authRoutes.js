@@ -13,6 +13,16 @@ const generateToken = (userId) => {
     )
 }
 
+const getLearners = async (req, res) => {  // Fixed: removed 'function' keyword
+    try {
+        const learners = await User.find({ role: 'learner' }).select('name email role');
+        res.status(200).json(learners);
+    } catch (error) {
+        console.error("Error fetching learners:", error);
+        res.status(500).json({ message: 'Server error while fetching learners.' });
+    }
+};
+
 // create request, moved it from the userRoutes to convert to register
 router.post('/register', async (req, res) => {
     console.log('Request received!');
@@ -102,5 +112,7 @@ router.post('/login', async (req, res) => {
 router.get('/me', protect, async (req, res) => {
     res.json(req.user);
 });
+
+router.get('/learners', protect, getLearners);
 
 export default router;
