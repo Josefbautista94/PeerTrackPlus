@@ -25,11 +25,10 @@ app.use(express.urlencoded({ extended: true }));
 // CORS configuration (must be before routes)
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: process.env.FRONTEND_URL || "http://localhost:5173",
     credentials: true,
   })
 );
-
 // ---------- Test Route ----------
 app.post("/test", (req, res) => {
   console.log("Test route - req.body:", req.body);
