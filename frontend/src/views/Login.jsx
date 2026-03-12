@@ -11,7 +11,7 @@ import {
 } from "../styles/authStyles";
 
 // ⚠️ IMPORTANT: Replace this with your actual backend API URL
-const API_BASE_URL = `${import.meta.env.VITE_API_URL}/api`;;
+const API_BASE_URL = `${import.meta.env.VITE_API_URL}/api/auth`;
 // Note: We will keep ADMIN_EMAIL for the redirect logic, but actual authentication
 // will now be handled by the backend's email/password validation.
 const ADMIN_EMAIL = "admin@peerscholas.org"; 

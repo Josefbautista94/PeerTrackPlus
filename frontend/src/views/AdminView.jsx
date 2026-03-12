@@ -8,7 +8,7 @@ import { useAuth } from "../context/AuthContext";
  * including aggregate metrics and recent learner request insights.
  */
 
-const API_BASE_URL = `${import.meta.env.VITE_API_URL}/api`;
+const API_BASE_URL = `${import.meta.env.VITE_API_URL}/api/auth`;;
 
 export default function AdminView() {
     const { user, getAuthHeader } = useAuth(); // Get user details and token helper
