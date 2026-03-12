@@ -1,8 +1,7 @@
 import axios from "axios"
 
-// Base URL for all AI-related backend endpoints
-// Backend runs on port 3000
-const API_BASE = "http://localhost:3000/api/ai";
+// Base URL for backend AI routes
+const API_BASE = `${import.meta.env.VITE_API_URL}/api/ai`;
 
 
 // Sends a message to the AI study assistant
